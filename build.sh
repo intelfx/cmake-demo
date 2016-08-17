@@ -18,6 +18,10 @@ function make() {
 	$(which make) -j$NR_JOBS "$@"
 }
 
+PREFIX_BAR="$(realpath -qm "$PREFIX_BAR")"
+PREFIX_FOO="$(realpath -qm "$PREFIX_FOO")"
+PREFIX_CLIENT="$(realpath -qm "$PREFIX_CLIENT")"
+
 echo ":: Deleting prefixes"
 rm -rf prefix
 
@@ -39,7 +43,7 @@ echo ":: Building foo"
 cd foo
 mkbuild
 
-cmake .. -DCMAKE_INSTALL_PREFIX="$PREFIX_FOO" -DBUILD_SHARED_LIBS="$BUILD_SHARED_FOO" -DCMAKE_PREFIX_PATH="$(realpath "$PREFIX_BAR")" # relative pathes are not allowed in CMAKE_PREFIX_PATH, but in fact allowed elsewhere
+cmake .. -DCMAKE_INSTALL_PREFIX="$PREFIX_FOO" -DBUILD_SHARED_LIBS="$BUILD_SHARED_FOO" -DCMAKE_PREFIX_PATH="$PREFIX_BAR" # relative pathes are not allowed in CMAKE_PREFIX_PATH, but in fact allowed elsewhere
 make
 make install/strip
 
@@ -51,8 +55,8 @@ echo ":: Building client"
 cd client
 mkbuild
 
-cmake .. -DCMAKE_INSTALL_PREFIX="$PREFIX_CLIENT" -DCMAKE_INSTALL_RPATH_USE_LINK_PATH=ON -DCMAKE_PREFIX_PATH="$(realpath "$PREFIX_BAR");$(realpath "$PREFIX_FOO")" # relative pathes are not allowed in CMAKE_PREFIX_PATH, but in fact allowed elsewhere
-make
+cmake .. -DCMAKE_INSTALL_PREFIX="$PREFIX_CLIENT" -DCMAKE_INSTALL_RPATH_USE_LINK_PATH=ON -DCMAKE_PREFIX_PATH="$PREFIX_BAR;$PREFIX_FOO" # relative pathes are not allowed in CMAKE_PREFIX_PATH, but in fact allowed elsewhere
+make VERBOSE=1
 make install/strip
 
 cd ../..
